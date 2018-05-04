@@ -2,6 +2,8 @@
 
 [![CircleCI](https://circleci.com/gh/nozaq/terraform-aws-secure-vpc.svg?style=svg)](https://circleci.com/gh/nozaq/terraform-aws-secure-vpc)
 
+[Terraform Module Registry](https://registry.terraform.io/modules/nozaq/secure-vpc/aws)
+
 A terraform module to create a VPC with secure default configurations.
 Most configurations are based on [CIS Amazon web Services Foundations] and [CIS Amazon Web Services Three-tier Web Architecture Benchmark].
 
