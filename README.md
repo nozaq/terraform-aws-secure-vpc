@@ -1,6 +1,6 @@
 # terraform-aws-secure-vpc
 
-[![CircleCI](https://circleci.com/gh/nozaq/terraform-aws-secure-vpc.svg?style=svg)](https://circleci.com/gh/nozaq/terraform-aws-secure-vpc)
+[![Github Actions](https://github.com/nozaq/terraform-aws-secure-vpc/workflows/Terraform/badge.svg)](https://github.com/nozaq/terraform-aws-secure-vpc/actions?workflow=Terraform)
 
 [Terraform Module Registry](https://registry.terraform.io/modules/nozaq/secure-vpc/aws)
 
