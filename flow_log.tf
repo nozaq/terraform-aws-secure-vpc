@@ -94,9 +94,9 @@ EOF
 }
 
 resource "aws_flow_log" "all" {
-  log_group_name = aws_cloudwatch_log_group.flow_logs.name
-  iam_role_arn   = aws_iam_role.flow_logs_publisher.arn
-  vpc_id         = aws_vpc.this.id
-  traffic_type   = var.flow_logs_traffic_type
+  log_destination = aws_cloudwatch_log_group.flow_logs.arn
+  iam_role_arn    = aws_iam_role.flow_logs_publisher.arn
+  vpc_id          = aws_vpc.this.id
+  traffic_type    = var.flow_logs_traffic_type
 }
 
