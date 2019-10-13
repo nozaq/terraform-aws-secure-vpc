@@ -1,5 +1,8 @@
-variable "access_key" {}
-variable "secret_key" {}
+variable "access_key" {
+}
+
+variable "secret_key" {
+}
 
 variable "region" {
   description = "The AWS region in which global resources are set up."
@@ -13,3 +16,4 @@ variable "management_ip" {
 variable "key_name" {
   description = "The key name to use for EC2 instances."
 }
+
