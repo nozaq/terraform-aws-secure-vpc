@@ -30,3 +30,13 @@ jobs:
       uses: hashicorp/terraform-github-actions/validate@v0.4.4
       env:
         TF_ACTION_WORKING_DIR: "./examples/simple"
+
+    - name: terraform init - examples/ec2
+      uses: hashicorp/terraform-github-actions/init@v0.4.4
+      env:
+        TF_ACTION_WORKING_DIR: "./examples/ec2"
+
+    - name: terraform validate - examples/ec2
+      uses: hashicorp/terraform-github-actions/validate@v0.4.4
+      env:
+        TF_ACTION_WORKING_DIR: "./examples/ec2"
