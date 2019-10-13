@@ -13,20 +13,21 @@ locals {
 # VPC 
 #---------------------------------------------------------------------------------------------------
 provider "aws" {
-  access_key = "${var.access_key}"
-  secret_key = "${var.secret_key}"
-  region     = "${var.region}"
+  access_key = var.access_key
+  secret_key = var.secret_key
+  region     = var.region
 }
 
-data "aws_caller_identity" "current" {}
+data "aws_caller_identity" "current" {
+}
 
 module "simple_vpc" {
   source = "../../"
 
-  aws_account_id          = "${data.aws_caller_identity.current.account_id}"
-  cidr_block              = "${local.vpc_cidr}"
+  aws_account_id          = data.aws_caller_identity.current.account_id
+  cidr_block              = local.vpc_cidr
   availability_zones      = ["ap-northeast-1a"]
-  nat_subnet_cidr_blocks  = ["${local.nat_cidr}"]
+  nat_subnet_cidr_blocks  = [local.nat_cidr]
   flow_logs_iam_role_name = "FlowLogsPublisher"
   flow_logs_group_name    = "SimpleVPCFlowLogs"
 
@@ -70,25 +71,25 @@ data "aws_ami" "amazon_linux" {
 #---------------------------------------------------------------------------------------------------
 
 resource "aws_subnet" "dmz" {
-  vpc_id     = "${module.simple_vpc.vpc_id}"
-  cidr_block = "${local.dmz_cidr}"
+  vpc_id     = module.simple_vpc.vpc_id
+  cidr_block = local.dmz_cidr
 }
 
 resource "aws_route_table_association" "dmz" {
-  subnet_id      = "${aws_subnet.dmz.id}"
-  route_table_id = "${module.simple_vpc.public_route_table_id}"
+  subnet_id      = aws_subnet.dmz.id
+  route_table_id = module.simple_vpc.public_route_table_id
 }
 
 resource "aws_network_acl" "dmz" {
-  vpc_id     = "${module.simple_vpc.vpc_id}"
-  subnet_ids = ["${aws_subnet.dmz.id}"]
+  vpc_id     = module.simple_vpc.vpc_id
+  subnet_ids = [aws_subnet.dmz.id]
 
   # allow all traffic from instances inside the VPC.
   ingress {
     protocol   = "all"
     rule_no    = 100
     action     = "allow"
-    cidr_block = "${var.management_ip}"
+    cidr_block = var.management_ip
     from_port  = 0
     to_port    = 0
   }
@@ -117,13 +118,13 @@ resource "aws_network_acl" "dmz" {
 resource "aws_security_group" "bastion" {
   name        = "BastionSG"
   description = "Allow all inbound traffic"
-  vpc_id      = "${module.simple_vpc.vpc_id}"
+  vpc_id      = module.simple_vpc.vpc_id
 
   ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["${var.management_ip}"]
+    cidr_blocks = [var.management_ip]
   }
 
   egress {
@@ -135,11 +136,11 @@ resource "aws_security_group" "bastion" {
 }
 
 resource "aws_instance" "bastion" {
-  ami                         = "${data.aws_ami.amazon_linux.id}"
+  ami                         = data.aws_ami.amazon_linux.id
   instance_type               = "t2.nano"
-  subnet_id                   = "${aws_subnet.dmz.id}"
-  vpc_security_group_ids      = ["${aws_security_group.bastion.id}"]
-  key_name                    = "${var.key_name}"
+  subnet_id                   = aws_subnet.dmz.id
+  vpc_security_group_ids      = [aws_security_group.bastion.id]
+  key_name                    = var.key_name
   associate_public_ip_address = true
 }
 
@@ -148,20 +149,20 @@ resource "aws_instance" "bastion" {
 #---------------------------------------------------------------------------------------------------
 
 resource "aws_subnet" "private" {
-  vpc_id     = "${module.simple_vpc.vpc_id}"
-  cidr_block = "${local.private_cidr}"
+  vpc_id     = module.simple_vpc.vpc_id
+  cidr_block = local.private_cidr
 }
 
 resource "aws_network_acl" "priavte" {
-  vpc_id     = "${module.simple_vpc.vpc_id}"
-  subnet_ids = ["${aws_subnet.private.id}"]
+  vpc_id     = module.simple_vpc.vpc_id
+  subnet_ids = [aws_subnet.private.id]
 
   # allow all traffic from instances inside the VPC.
   ingress {
     protocol   = "all"
     rule_no    = 100
     action     = "allow"
-    cidr_block = "${local.dmz_cidr}"
+    cidr_block = local.dmz_cidr
     from_port  = 0
     to_port    = 0
   }
@@ -190,13 +191,21 @@ resource "aws_network_acl" "priavte" {
 resource "aws_security_group" "private" {
   name        = "PrivateSG"
   description = "Allow all inbound traffic"
-  vpc_id      = "${module.simple_vpc.vpc_id}"
+  vpc_id      = module.simple_vpc.vpc_id
 
   ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["${local.dmz_cidr}"]
+    from_port = 22
+    to_port   = 22
+    protocol  = "tcp"
+    # TF-UPGRADE-TODO: In Terraform v0.10 and earlier, it was sometimes necessary to
+    # force an interpolation expression to be interpreted as a list by wrapping it
+    # in an extra set of list brackets. That form was supported for compatibilty in
+    # v0.11, but is no longer supported in Terraform v0.12.
+    #
+    # If the expression in the following list itself returns a list, remove the
+    # brackets to avoid interpretation as a list of lists. If the expression
+    # returns a single list item then leave it as-is and remove this TODO comment.
+    cidr_blocks = [local.dmz_cidr]
   }
 
   egress {
@@ -208,10 +217,11 @@ resource "aws_security_group" "private" {
 }
 
 resource "aws_instance" "private" {
-  ami                         = "${data.aws_ami.amazon_linux.id}"
+  ami                         = data.aws_ami.amazon_linux.id
   instance_type               = "t2.nano"
-  subnet_id                   = "${aws_subnet.private.id}"
-  vpc_security_group_ids      = ["${aws_security_group.private.id}"]
-  key_name                    = "${var.key_name}"
+  subnet_id                   = aws_subnet.private.id
+  vpc_security_group_ids      = [aws_security_group.private.id]
+  key_name                    = var.key_name
   associate_public_ip_address = false
 }
+
