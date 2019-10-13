@@ -22,9 +22,9 @@ The primary goal of this module is to create a VPC itself in a secure manner wit
 data "aws_caller_identity" "current" {}
 
 module "simple_vpc" {
-  source = "../../"
+  source = "nozaq/secure-vpc"
 
-  aws_account_id          = "${data.aws_caller_identity.current.account_id}"
+  aws_account_id          = data.aws_caller_identity.current.account_id
   cidr_block              = "10.0.0.0/8"
   availability_zones      = ["ap-northeast-1a", "ap-northeast-1c"]
   nat_subnet_cidr_blocks  = ["10.0.253.0/24", "10.0.254.0/24"]
