@@ -1,3 +1,5 @@
+data "aws_region" "current" {}
+
 #---------------------------------------------------------------------------------------------------
 # VPC Flow Logs
 #---------------------------------------------------------------------------------------------------
@@ -22,7 +24,7 @@ resource "aws_kms_key" "flow_logs" {
     },
     {
       "Effect": "Allow",
-      "Principal": { "Service": "logs.ap-northeast-1.amazonaws.com" },
+      "Principal": { "Service": "logs.${data.aws_region.current.name}.amazonaws.com" },
       "Action": [ 
         "kms:Encrypt*",
         "kms:Decrypt*",
@@ -42,7 +44,7 @@ POLICY
 
 resource "aws_cloudwatch_log_group" "flow_logs" {
   name              = var.flow_logs_group_name
-  kms_key_id        = aws_kms_key.flow_logs.arn
+  kms_key_id        = aws_kms_key.flow_logs.id
   retention_in_days = var.flow_logs_retention_in_days
   tags              = var.tags
 }
