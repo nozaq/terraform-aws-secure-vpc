@@ -26,7 +26,7 @@ module "simple_vpc" {
 
   aws_account_id          = data.aws_caller_identity.current.account_id
   cidr_block              = local.vpc_cidr
-  availability_zones      = ["ap-northeast-1a"]
+  availability_zones      = ["us-east-1a"]
   nat_subnet_cidr_blocks  = [local.nat_cidr]
   flow_logs_iam_role_name = "FlowLogsPublisher"
   flow_logs_group_name    = "SimpleVPCFlowLogs"
