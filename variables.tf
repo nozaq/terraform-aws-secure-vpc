@@ -75,3 +75,4 @@ variable "flow_logs_key_deletion_window_in_days" {
   description = "Duration in days after which the key is deleted after destruction of the resource, must be between 7 and 30 days. Defaults to 30 days."
   default     = "30"
 }
+
