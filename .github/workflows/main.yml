@@ -1,6 +1,7 @@
 name: Terraform
 on: [push, pull_request]
-
+env:
+  TF_ACTIONS_VERSION: latest
 jobs:
   check-format:
     name: Check format
