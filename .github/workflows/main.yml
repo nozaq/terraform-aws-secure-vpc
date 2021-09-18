@@ -1,5 +1,9 @@
 name: Terraform
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 env:
   TF_ACTIONS_VERSION: latest
 jobs:
@@ -7,37 +11,29 @@ jobs:
     name: Check format
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v1.0.0
-
-    - name: terraform fmt
-      uses: hashicorp/terraform-github-actions/fmt@v0.4.4
-      env:
-        TF_ACTION_WORKING_DIR: "."
+      - uses: hashicorp/setup-terraform@v1
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: "Terraform Format"
+        run: terraform fmt -check -recursive
 
   validate-examples:
     name: Validate examples
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: examples
     steps:
-    - name: Checkout
-      uses: actions/checkout@master
-
-    - name: terraform init - examples/simple
-      uses: hashicorp/terraform-github-actions/init@v0.4.4
-      env:
-        TF_ACTION_WORKING_DIR: "./examples/simple"
-
-    - name: terraform validate - examples/simple
-      uses: hashicorp/terraform-github-actions/validate@v0.4.4
-      env:
-        TF_ACTION_WORKING_DIR: "./examples/simple"
-
-    - name: terraform init - examples/ec2
-      uses: hashicorp/terraform-github-actions/init@v0.4.4
-      env:
-        TF_ACTION_WORKING_DIR: "./examples/ec2"
-
-    - name: terraform validate - examples/ec2
-      uses: hashicorp/terraform-github-actions/validate@v0.4.4
-      env:
-        TF_ACTION_WORKING_DIR: "./examples/ec2"
+      - uses: hashicorp/setup-terraform@v1
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Check examples
+        env:
+          EXAMPLES: simple ec2
+        run: |
+          for EXAMPLE in ${EXAMPLES}
+          do
+            echo "Validating $EXAMPLE"...
+            cd $EXAMPLE && terraform init && terraform validate && cd -
+          done
