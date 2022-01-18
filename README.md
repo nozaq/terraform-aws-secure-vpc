@@ -21,8 +21,8 @@ The primary goal of this module is to create a VPC itself in a secure manner wit
 ```hcl
 data "aws_caller_identity" "current" {}
 
-module "simple_vpc" {
-  source = "nozaq/secure-vpc"
+module "secure_vpc" {
+  source = "nozaq/secure-vpc/aws"
 
   aws_account_id          = data.aws_caller_identity.current.account_id
   cidr_block              = "10.0.0.0/8"
